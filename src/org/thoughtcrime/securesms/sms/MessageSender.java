@@ -58,13 +58,16 @@ public class MessageSender {
     Recipients secureRecipients   = recipients.getSecureSessionRecipients(context);
     Recipients insecureRecipients = recipients.getInsecureSessionRecipients(context);
 
+    // this is where messages will get encrypted to each recipient and then appended to the total
+    // message to be sent as an mms
     for (Recipient secureRecipient : secureRecipients.getRecipientsList()) {
       sendMms(context, new Recipients(secureRecipient), masterSecret,
               sendRequest, threadId, !forcePlaintext);
     }
 
     if (!insecureRecipients.isEmpty()) {
-      sendMms(context, insecureRecipients, masterSecret, sendRequest, threadId, false);
+        sendRequest.setCC(insecureRecipients); // do we really want to set headers?
+        sendMms(context, insecureRecipients, masterSecret, sendRequest, threadId, false);
     }
 
     return threadId;
@@ -116,11 +119,12 @@ public class MessageSender {
     sendRequest.setTo(encodedNumbers);
 
     long messageId = DatabaseFactory.getEncryptingMmsDatabase(context, masterSecret)
-                       .insertMessageSent(sendRequest, threadId, secure);
+      .insertMessageSent(sendRequest, threadId, secure);
 
     Intent intent  = new Intent(SendReceiveService.SEND_MMS_ACTION, null,
                                 context, SendReceiveService.class);
     intent.putExtra("message_id", messageId);
+    intent.putExtra("recipients", recipients);
 
     context.startService(intent);
   }

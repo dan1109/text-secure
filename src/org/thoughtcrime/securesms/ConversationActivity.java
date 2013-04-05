@@ -461,19 +461,22 @@ public class ConversationActivity extends PassphraseRequiredSherlockFragmentActi
   }
 
   private void initializeSecurity() {
-    if (isSingleConversation() &&
-        KeyUtil.isSessionFor(this, getRecipients().getPrimaryRecipient()))
-    {
-      sendButton.setImageResource(R.drawable.ic_send_encrypted_holo_light);
-      this.isEncryptedConversation = true;
-      this.characterCalculator     = new EncryptedCharacterCalculator();
-    } else {
-      sendButton.setImageResource(R.drawable.ic_send_holo_light);
-      this.isEncryptedConversation = false;
-      this.characterCalculator     = new CharacterCalculator();
+    if (isSingleConversation()) {
+      if (KeyUtil.isSessionFor(this, getRecipients().getPrimaryRecipient())) {
+        sendButton.setImageResource(R.drawable.ic_send_encrypted_holo_light);
+        this.isEncryptedConversation = true;
+        this.characterCalculator     = new EncryptedCharacterCalculator();
+      } else {
+        sendButton.setImageResource(R.drawable.ic_send_holo_light);
+        this.isEncryptedConversation = false;
+        this.characterCalculator     = new CharacterCalculator();
+      }
+      //} else if (isGroupConversation()) {
+      // if (key) && (key.getType() == groupkey)
+      //if (KeyUtil.isSessionFor(this, getRecipients().getP) // xxx
+      //    calculateCharactersRemaining();
+      //    }
     }
-
-    calculateCharactersRemaining();
   }
 
   private void initializeMmsEnabledCheck() {
